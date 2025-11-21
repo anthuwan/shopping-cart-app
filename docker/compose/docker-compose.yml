@@ -1,0 +1,12 @@
+version: "3.4"
+
+services:
+  build2ECR:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        AWSACTID: ${AWSACTID}
+      tags:
+        - ${AWSACTID}.dkr.ecr.eu-west-1.amazonaws.com/s1/${GIT_REPO}:${LATEST-latest}
+    image: ${AWSACTID}.dkr.ecr.eu-west-1.amazonaws.com/s1/${GIT_REPO}:${TAG}

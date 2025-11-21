@@ -1,0 +1,110 @@
+openapi: 3.0.1
+info:
+  title: Shopping Cart Pricing API
+  version: 1.0.0
+  description: API to calculate shopping cart total based on client type and pricing rules.
+
+paths:
+  /api/cart/total:
+    post:
+      summary: Calculate shopping cart total
+      operationId: calculateCartTotal
+      tags:
+        - cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartRequest'
+      responses:
+        '200':
+          description: Cart total successfully calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartTotalResponse'
+        '400':
+          description: Invalid request
+components:
+  schemas:
+    ClientType:
+      type: string
+      enum:
+        - INDIVIDUAL
+        - PROFESSIONAL
+
+    ProductType:
+      type: string
+      enum:
+        - HIGH_END_PHONE
+        - MID_RANGE_PHONE
+        - LAPTOP
+
+    Client:
+      type: object
+      description: Client information (individual or professional).
+      properties:
+        type:
+          $ref: '#/components/schemas/ClientType'
+        clientId:
+          type: string
+        firstName:
+          type: string
+          description: "Only for INDIVIDUAL"
+        lastName:
+          type: string
+          description: "Only for INDIVIDUAL"
+        companyName:
+          type: string
+          description: "Only for PROFESSIONAL"
+        vatNumber:
+          type: string
+          nullable: true
+          description: "Optional, only for PROFESSIONAL"
+        registrationNumber:
+          type: string
+          description: "Only for PROFESSIONAL"
+        annualRevenue:
+          type: number
+          format: double
+          description: "Only for PROFESSIONAL"
+      required:
+        - type
+        - clientId
+
+    CartItem:
+      type: object
+      properties:
+        productType:
+          $ref: '#/components/schemas/ProductType'
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+      required:
+        - productType
+        - quantity
+
+    CartRequest:
+      type: object
+      properties:
+        client:
+          $ref: '#/components/schemas/Client'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+      required:
+        - client
+        - items
+
+    CartTotalResponse:
+      type: object
+      properties:
+        total:
+          type: number
+          format: double
+          description: Cart total in EUR
+      required:
+        - total
