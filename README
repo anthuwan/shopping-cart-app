@@ -1,0 +1,99 @@
+# Shopping Cart Pricing Service
+
+This project is a Spring Boot application that exposes a REST API to calculate the total price of a shopping cart for different types of clients.
+
+The company sells three product types:
+
+- High-end phones
+- Mid-range phones
+- Laptops
+
+There are two types of clients:
+
+- **Individual clients**
+- **Professional clients** (with annual revenue)
+
+Pricing varies depending on the client type and (for professionals) the annual revenue.
+
+---
+
+## Business Rules
+
+### Individual clients
+
+- High-end phone: **€1500**
+- Mid-range phone: **€800**
+- Laptop: **€1200**
+
+### Professional clients
+
+- **Annual revenue > €10,000,000**
+  - High-end phone: **€1000**
+  - Mid-range phone: **€550**
+  - Laptop: **€900**
+
+- **Annual revenue ≤ €10,000,000**
+  - High-end phone: **€1150**
+  - Mid-range phone: **€600**
+  - Laptop: **€1000**
+
+The cart may contain multiple quantities of each product type.
+The API calculates the total amount for a given client and their cart.
+
+---
+
+## Architecture & Design
+
+The code is organized using a clean, layered structure:
+
+- `com.capco.pricing.domain`
+  - Core domain model:
+    - `Client`, `IndividualClient`, `ProfessionalClient`
+    - `ProductType`
+    - `ShoppingCart`
+- `com.capco.pricing.service`
+  - Domain services & pricing logic:
+    - `PricingStrategy` (Strategy pattern)
+    - `IndividualPricingStrategy`
+    - `BigRevenueProfessionalPricingStrategy`
+    - `SmallRevenueProfessionalPricingStrategy`
+    - `PricingStrategyResolver` (Factory/Resolver for strategies)
+    - `CartPricer` (calculates totals)
+- `com.capco.pricing.controller`
+  - REST controller:
+    - `CartController`
+- `com.capco.pricing.controller.dto`
+  - API DTOs:
+    - `ClientType`, `ClientDto`
+    - `CartItemDto`, `CartRequestDto`, `CartTotalResponse`
+
+### Design patterns
+
+- **Strategy pattern** for pricing rules
+  `PricingStrategy` is the abstraction; concrete strategies implement pricing rules for each client segment.
+
+- **Factory/Resolver** (`PricingStrategyResolver`)
+  Central place to decide which `PricingStrategy` to use based on `Client` type and annual revenue.
+
+- **Domain Service** (`CartPricer`)
+  Encapsulates the calculation of cart totals without mixing controller or infrastructure concerns.
+
+---
+
+## Requirements
+
+- Java (version as defined in `pom.xml`, e.g. 17+)
+- Maven 3.8+
+- (Optional for this exercise) PostgreSQL 15 installed locally
+  > The current shopping-cart implementation does **not** persist to a database, but these steps match the provided environment setup instructions.
+
+---
+
+## Install PostgreSQL (macOS with Homebrew)
+
+If you want to mirror the standard local environment:
+
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+brew link postgresql@15
